@@ -1,0 +1,128 @@
+<div class="container" id="formRegister">
+
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+        <div id="liveToast" class="toast hide align-items-center text-white bg-success border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="toast-header d-flex justify-content-between">
+                Success
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body text-white" id="toastBody">
+                {{!-- {{this}} --}}
+            </div>
+        </div>
+    </div>
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+        <div id="liveToastErr" class="toast hide align-items-center text-white bg-danger border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="toast-header d-flex justify-content-between">
+                Error
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body text-white" id="toastBodyErr">
+                {{!-- {{this}} --}}
+            </div>
+        </div>
+    </div>
+    <h1>Registration</h1>
+    <form action="/employees/register" enctype="multipart/form-data" method="post" id="submit">
+        <div class="form-group">
+            <label for="exampleInputEmail1">Name</label>
+            <input type="text" class="form-control" name="name" id="exampleInputEmail1" required
+                aria-describedby="emailHelp" placeholder="Enter name">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Email</label>
+            <input type="email" class="form-control" name="email" id="exampleInputEmail1" required
+                aria-describedby="emailHelp" placeholder="Enter Email">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Resume</label>
+            <input type="file" class="form-control" multiple name="file" id="exampleInputEmail1" required
+                aria-describedby="emailHelp" placeholder="Enter File">
+            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+        </div>
+        <div class="form-group my-3">
+            <h3>Address</h3>
+            <div class="row">
+                <label for="exampleInputPassword1">Country</label>
+                <select class="form-select" required name="country" id="country" aria-label="Default select example">
+                    <option {{#unless selectedCountry }} selected disabled{{/unless}} value="">Select Country</option>
+                    {{#each countries}}
+                    <option {{#compare ../selectedCountry '==' this}}selected{{/compare}} value="{{this}}">{{this}}
+                    </option>
+                    {{/each}}
+                </select>
+            </div>
+
+            <div class="row">
+                <label for="exampleInputPassword1">State</label>
+                <select class="form-select" required name="state" id="state" aria-label="Default select example">
+                    <option {{#unless selectedState }} selected disabled{{/unless}} value="">Select State</option>
+                    {{#each states}}
+                    <option {{#compare ../selectedState '==' this}}selected{{/compare}} value="{{this}}">{{this}}
+                    </option>
+                    {{/each}}
+                </select>
+            </div>
+            <div class="row">
+                <label for="exampleInputPassword1">City</label>
+                <select class="form-select" required name="city" id="city" aria-label="Default select example">
+                    <option selected disabled value="">Select City</option>
+                    {{#each cities}}
+                    <option value="{{this}}">{{this}}</option>
+                    {{/each}}
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1">Password</label>
+            <input type="password" class="form-control" name="password" id="exampleInputPassword1"
+                placeholder="Password">
+        </div>
+
+        <button type="submit" class="btn btn-primary ">
+            <span class="spinner-border mx-1 d-none" id="loader" role="status">
+            </span>Submit
+        </button>
+    </form>
+</div>
+
+{{#section 'script'}}
+<script>
+    $(document).ready(function () {
+        new employeeHandler()
+    })
+</script>
+<script>
+    console.log($("#state"))
+
+    $(document).on('change', "#country", function () {
+        $.ajax({
+            method: 'get',
+            url: `/employees/register?country=${$(this).val()}&state=${$('#state').val() ? $('#state').val() : ''}`,
+            success: function (result) {
+                let states = [...$(result).children().eq(3).children().eq(3).children().eq(2).children().eq(1)]
+                console.log(states)
+                $("#state").replaceWith(states)
+
+            }
+
+        })
+    })
+    $(document).on('change', '#state', function () {
+        $.ajax({
+            method: 'get',
+            url: `/employees/register?country=${$("#country").val()}&state=${$(this).val()}`,
+            success: function (result) {
+                console.log($(result).children().eq(3).children().eq(3).children().eq(3))
+                let cities = [...$(result).children().eq(3).children().eq(3).children().eq(3).children().eq(1)]
+                //console.log(cities)
+                $("#city").replaceWith(cities)
+            }
+
+        })
+    })
+
+</script>
+{{/section}}
